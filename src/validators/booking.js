@@ -24,4 +24,4 @@ function validateBooking(body, now = new Date()) {
   return { date };
 }
 
-module.exports = { validateBooking, todayUtc };
+module.exports = { validateBooking };

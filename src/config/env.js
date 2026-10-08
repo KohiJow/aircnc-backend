@@ -152,4 +152,4 @@ function loadConfig(env = process.env) {
   };
 }
 
-module.exports = { loadConfig, ConfigError, SUPPORTED_MIME_TYPES, ROOT_DIR };
+module.exports = { loadConfig, ConfigError };

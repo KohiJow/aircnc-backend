@@ -60,4 +60,4 @@ async function removeImage(filename, config) {
   }
 }
 
-module.exports = { createUpload, saveImage, removeImage, detectImageType, EXTENSIONS };
+module.exports = { createUpload, saveImage, removeImage, detectImageType };

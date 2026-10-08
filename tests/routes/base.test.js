@@ -49,6 +49,15 @@ describe('rotas base', () => {
     expect(res.body).toEqual({ error: 'JSON invalido no corpo da requisicao' });
   });
 
+  test('JSON acima de 100kb devolve 413', async () => {
+    const res = await request(ctx.app)
+      .post('/sessions')
+      .set('content-type', 'application/json')
+      .send(JSON.stringify({ email: 'a'.repeat(120 * 1024) }));
+    expect(res.status).toBe(413);
+    expect(res.body).toEqual({ error: 'corpo da requisicao muito grande' });
+  });
+
   test('cabecalhos de seguranca do helmet, sem x-powered-by', async () => {
     const res = await request(ctx.app).get('/');
     expect(res.headers['x-content-type-options']).toBe('nosniff');
@@ -89,6 +98,10 @@ describe('rotas base', () => {
     expect(res.status).toBe(429);
     expect(res.body).toEqual({ error: 'muitas requisicoes, tente de novo em instantes' });
     expect(res.headers['ratelimit']).toBeDefined();
+
+    // /files fica fora do limite: o front carrega varias imagens por tela
+    const file = await request(limited.app).get('/files/nada.png');
+    expect(file.status).toBe(404);
     limited.cleanup();
   });
 

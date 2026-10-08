@@ -52,4 +52,4 @@ function validateTechFilter(query) {
   return tech;
 }
 
-module.exports = { validateSpot, validateTechFilter, parseTechs };
+module.exports = { validateSpot, validateTechFilter };

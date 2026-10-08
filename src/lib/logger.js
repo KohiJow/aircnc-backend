@@ -21,4 +21,4 @@ const logger = {
   error: (message, extra) => write('error', message, extra)
 };
 
-module.exports = { logger, LEVELS };
+module.exports = { logger };
