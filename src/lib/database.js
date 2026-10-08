@@ -36,9 +36,11 @@ function createDatabase(config) {
     return false;
   }
 
+  // com uma tentativa de conexao em andamento o close() do mongoose espera ela
+  // terminar (ate DB_CONNECT_TIMEOUT_MS), e nao ha nada para fechar nesse caso
   async function disconnect() {
     stopped = true;
-    await mongoose.disconnect();
+    if (mongoose.connection.readyState === 1) await mongoose.disconnect();
   }
 
   const isConnected = () => mongoose.connection.readyState === 1;
