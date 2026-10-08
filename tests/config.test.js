@@ -24,7 +24,7 @@ describe('loadConfig', () => {
   });
 
   test('aceita mongodb+srv e monta APP_URL a partir da PORT', () => {
-    const config = loadConfig({ MONGO_URI: 'mongodb+srv://u:p@cluster.example/db', PORT: '8080' });
+    const config = loadConfig({ MONGO_URI: 'mongodb+srv://cluster.example/db', PORT: '8080' });
     expect(config.port).toBe(8080);
     expect(config.appUrl).toBe('http://localhost:8080');
   });

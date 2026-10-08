@@ -13,25 +13,25 @@ describe('POST /sessions', () => {
   afterAll(() => ctx.cleanup());
 
   test('devolve 200 com o usuario existente', async () => {
-    User.findOne.mockResolvedValue({ _id: ids.user, email: 'fulano@exemplo.com', createdAt: 'x' });
+    User.findOne.mockResolvedValue({ _id: ids.user, email: 'fulano@example.com', createdAt: 'x' });
 
-    const res = await request(ctx.app).post('/sessions').send({ email: ' Fulano@Exemplo.com ' });
+    const res = await request(ctx.app).post('/sessions').send({ email: ' Fulano@Example.com ' });
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ _id: ids.user, email: 'fulano@exemplo.com' });
-    expect(User.findOne).toHaveBeenCalledWith({ email: 'fulano@exemplo.com' });
+    expect(res.body).toEqual({ _id: ids.user, email: 'fulano@example.com' });
+    expect(User.findOne).toHaveBeenCalledWith({ email: 'fulano@example.com' });
     expect(User.create).not.toHaveBeenCalled();
   });
 
   test('devolve 201 quando cria o usuario', async () => {
     User.findOne.mockResolvedValue(null);
-    User.create.mockResolvedValue({ _id: ids.user, email: 'novo@exemplo.com' });
+    User.create.mockResolvedValue({ _id: ids.user, email: 'novo@example.com' });
 
-    const res = await request(ctx.app).post('/sessions').send({ email: 'novo@exemplo.com' });
+    const res = await request(ctx.app).post('/sessions').send({ email: 'novo@example.com' });
 
     expect(res.status).toBe(201);
-    expect(res.body).toEqual({ _id: ids.user, email: 'novo@exemplo.com' });
-    expect(User.create).toHaveBeenCalledWith({ email: 'novo@exemplo.com' });
+    expect(res.body).toEqual({ _id: ids.user, email: 'novo@example.com' });
+    expect(User.create).toHaveBeenCalledWith({ email: 'novo@example.com' });
   });
 
   test('devolve 400 sem email', async () => {
@@ -51,7 +51,7 @@ describe('POST /sessions', () => {
     User.findOne.mockResolvedValue(null);
     User.create.mockRejectedValue(Object.assign(new Error('E11000'), { code: 11000 }));
 
-    const res = await request(ctx.app).post('/sessions').send({ email: 'a@b.co' });
+    const res = await request(ctx.app).post('/sessions').send({ email: 'ana@example.com' });
     expect(res.status).toBe(409);
     expect(res.body).toEqual({ error: 'registro duplicado' });
   });

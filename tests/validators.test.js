@@ -16,14 +16,14 @@ function detailsOf(fn) {
 
 describe('validateSession', () => {
   test('normaliza o email', () => {
-    expect(validateSession({ email: '  Fulano@Exemplo.COM ' })).toEqual({ email: 'fulano@exemplo.com' });
+    expect(validateSession({ email: '  Fulano@Example.COM ' })).toEqual({ email: 'fulano@example.com' });
   });
 
   test.each([undefined, {}, { email: '' }, { email: 42 }])('rejeita corpo sem email: %p', body => {
     expect(detailsOf(() => validateSession(body))).toEqual(['email e obrigatorio']);
   });
 
-  test.each(['semarroba', 'a@b', 'a b@c.de', '@x.com'])('rejeita email invalido: %s', email => {
+  test.each(['semarroba', 'a@b', 'a b@example.com', '@x.com'])('rejeita email invalido: %s', email => {
     expect(detailsOf(() => validateSession({ email }))).toEqual(['email invalido']);
   });
 });

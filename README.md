@@ -150,13 +150,13 @@ Entra com o email; cria o usuario se nao existir. O email e normalizado (minuscu
 espacos nas pontas).
 
 ```bash
-curl -X POST $API/sessions -H 'content-type: application/json' -d '{"email":"dev@exemplo.com"}'
+curl -X POST $API/sessions -H 'content-type: application/json' -d '{"email":"dev@example.com"}'
 ```
 
 `200` (ja existia) ou `201` (criado):
 
 ```json
-{ "_id": "66f1c0a2b7e9d3a1c4f0e111", "email": "dev@exemplo.com" }
+{ "_id": "66f1c0a2b7e9d3a1c4f0e111", "email": "dev@example.com" }
 ```
 
 `400` sem email ou com email invalido:
@@ -258,7 +258,7 @@ curl -X POST $API/spots/66f1c0a2b7e9d3a1c4f0e222/bookings \
   "_id": "66f1c0a2b7e9d3a1c4f0e444",
   "date": "2026-11-20",
   "approved": null,
-  "user": { "_id": "66f1c0a2b7e9d3a1c4f0e333", "email": "dev@exemplo.com" },
+  "user": { "_id": "66f1c0a2b7e9d3a1c4f0e333", "email": "dev@example.com" },
   "spot": {
     "_id": "66f1c0a2b7e9d3a1c4f0e222",
     "thumbnail": "3f9a1c2e4b5d6a7f8c9d0e1f2a3b4c5d.png",

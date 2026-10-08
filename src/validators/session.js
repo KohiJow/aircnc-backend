@@ -1,6 +1,6 @@
 const { badRequest } = require('../lib/errors');
 
-// aceita o formato geral local@dominio.tld sem tentar cobrir toda a RFC
+// aceita o formato geral "algo, arroba, dominio, ponto, tld" sem tentar cobrir toda a RFC
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 function validateSession(body) {

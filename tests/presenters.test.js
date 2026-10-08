@@ -28,8 +28,8 @@ describe('presenters', () => {
     expect(spot.price).toBe(10);
     expect(spot.user).toBe('507f1f77bcf86cd799439011');
 
-    const populated = presentSpot({ ...doc.toObject(), user: { _id: 'u1', email: 'a@b.co' } }, FILES);
-    expect(populated.user).toEqual({ _id: 'u1', email: 'a@b.co' });
+    const populated = presentSpot({ ...doc.toObject(), user: { _id: 'u1', email: 'ana@example.com' } }, FILES);
+    expect(populated.user).toEqual({ _id: 'u1', email: 'ana@example.com' });
   });
 
   test('presentBooking formata a data e aninha spot e usuario', () => {
@@ -38,7 +38,7 @@ describe('presenters', () => {
         _id: 'b1',
         date: new Date('2030-01-01T00:00:00Z'),
         approved: undefined,
-        user: { _id: 'u1', email: 'a@b.co' },
+        user: { _id: 'u1', email: 'ana@example.com' },
         spot: { _id: 's1', thumbnail: 'x.png', company: 'ACME', techs: [], user: 'u2' },
         createdAt: 'c'
       },
@@ -48,7 +48,7 @@ describe('presenters', () => {
       _id: 'b1',
       date: '2030-01-01',
       approved: null,
-      user: { _id: 'u1', email: 'a@b.co' },
+      user: { _id: 'u1', email: 'ana@example.com' },
       spot: { _id: 's1', thumbnail: 'x.png', thumbnail_url: `${FILES}/x.png`, company: 'ACME', price: null, techs: [], user: 'u2', createdAt: undefined },
       createdAt: 'c'
     });
@@ -62,6 +62,6 @@ describe('presenters', () => {
   });
 
   test('presentUser so expoe id e email', () => {
-    expect(presentUser({ _id: 'u1', email: 'a@b.co', createdAt: 'x' })).toEqual({ _id: 'u1', email: 'a@b.co' });
+    expect(presentUser({ _id: 'u1', email: 'ana@example.com', createdAt: 'x' })).toEqual({ _id: 'u1', email: 'ana@example.com' });
   });
 });

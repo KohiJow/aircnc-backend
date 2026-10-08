@@ -112,7 +112,7 @@ describe('rotas base', () => {
     expect(health.body).toMatchObject({ status: 'degraded', database: 'disconnected' });
 
     for (const call of [
-      request(offline.app).post('/sessions').send({ email: 'a@b.co' }),
+      request(offline.app).post('/sessions').send({ email: 'ana@example.com' }),
       request(offline.app).get('/spots'),
       request(offline.app).get('/dashboard').set('user_id', '507f1f77bcf86cd799439011')
     ]) {
@@ -126,7 +126,7 @@ describe('rotas base', () => {
 
   test('erro inesperado num handler async vira 500 com detalhes fora de producao', async () => {
     User.findOne.mockRejectedValue(new Error('explodiu'));
-    const res = await request(ctx.app).post('/sessions').send({ email: 'a@b.co' });
+    const res = await request(ctx.app).post('/sessions').send({ email: 'ana@example.com' });
     expect(res.status).toBe(500);
     expect(res.body.error).toBe('erro interno no servidor');
     expect(res.body.details).toBe('explodiu');
@@ -136,7 +136,7 @@ describe('rotas base', () => {
   test('em producao o 500 nao expoe mensagem nem stack', async () => {
     const prod = buildApp({ env: { NODE_ENV: 'production' } });
     User.findOne.mockRejectedValue(new Error('explodiu'));
-    const res = await request(prod.app).post('/sessions').send({ email: 'a@b.co' });
+    const res = await request(prod.app).post('/sessions').send({ email: 'ana@example.com' });
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: 'erro interno no servidor' });
     prod.cleanup();

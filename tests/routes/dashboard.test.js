@@ -15,7 +15,7 @@ describe('GET /dashboard', () => {
   afterAll(() => ctx.cleanup());
 
   test('lista os spots do usuario do header', async () => {
-    User.findById.mockResolvedValue({ _id: ids.user, email: 'a@b.co' });
+    User.findById.mockResolvedValue({ _id: ids.user, email: 'ana@example.com' });
     const sort = jest.fn().mockResolvedValue([
       { _id: ids.spot, thumbnail: 'a.png', company: 'ACME', price: 10, techs: ['React'], user: ids.user }
     ]);

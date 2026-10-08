@@ -66,7 +66,7 @@ describe('POST /spots', () => {
   let ctx;
   beforeEach(() => {
     ctx = buildApp();
-    User.findById.mockResolvedValue({ _id: ids.user, email: 'a@b.co' });
+    User.findById.mockResolvedValue({ _id: ids.user, email: 'ana@example.com' });
   });
   afterEach(() => ctx.cleanup());
 

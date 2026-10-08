@@ -5,7 +5,7 @@ const User = require('../src/models/User');
 // os models validam sem conexao, entao da para testar as regras de schema sem banco
 describe('models', () => {
   test('User normaliza o email e exige o campo', () => {
-    expect(new User({ email: '  Fulano@Exemplo.COM ' }).email).toBe('fulano@exemplo.com');
+    expect(new User({ email: '  Fulano@Example.COM ' }).email).toBe('fulano@example.com');
     expect(Object.keys(new User({}).validateSync().errors)).toEqual(['email']);
   });
 

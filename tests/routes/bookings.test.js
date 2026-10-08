@@ -10,7 +10,7 @@ const User = require('../../src/models/User');
 const { buildApp, ids, query } = require('../helpers/app');
 
 const spotDoc = { _id: ids.spot, thumbnail: 'a.png', company: 'ACME', price: 10, techs: ['React'], user: ids.owner };
-const userDoc = { _id: ids.user, email: 'hospede@exemplo.com' };
+const userDoc = { _id: ids.user, email: 'hospede@example.com' };
 
 const bookingDoc = (extra = {}) => ({
   _id: ids.booking,
@@ -120,7 +120,7 @@ describe.each([
     request(ctx.app).post(`/bookings/${bookingId}/${action}`).set('user_id', userId);
 
   test(`marca approved=${approved} e avisa quem pediu`, async () => {
-    User.findById.mockResolvedValue({ _id: ids.owner, email: 'dono@exemplo.com' });
+    User.findById.mockResolvedValue({ _id: ids.owner, email: 'dono@example.com' });
     const booking = bookingDoc();
     Booking.findById.mockReturnValue(query(booking));
 
