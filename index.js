@@ -90,6 +90,11 @@ async function connectDatabase() {
 // so sobe o servidor quando o arquivo e executado direto,
 // assim o app pode ser importado por um teste sem abrir porta nem banco
 if (require.main === module) {
+  if (!process.env.MONGO_URI) {
+    console.error('MONGO_URI nao definida: copie .env.example para .env');
+    process.exit(1);
+  }
+
   connectDatabase()
     .then(() => {
       server.listen(PORT, () => console.log(`servidor em http://localhost:${PORT}`));
