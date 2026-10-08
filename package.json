@@ -1,24 +1,22 @@
 {
   "name": "aircnc-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "API REST do AirCnC em Node.js com Express, Mongoose e Socket.IO",
   "license": "ISC",
-  "author": "Firmino",
+  "author": "João Mateus Firmino Rodrigues",
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "start": ""
+    "start": "node index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "express": "^5.1.0",
-    "mongodb": "^6.19.0",
     "mongoose": "^8.18.1",
     "multer": "^2.0.2",
-    "node.js": "^0.0.1-security",
     "socket.io": "^4.8.1"
   },
   "devDependencies": {

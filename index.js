@@ -1,106 +1,103 @@
-require('dotenv').config(); 
-// Load environment variables from .env file
+require('dotenv').config();
 
-const express = require('express'); 
-// Express is a Node.js framework to create web servers and handle HTTP requests
+const http = require('http');
+const path = require('path');
 
-const cors = require('cors'); 
-// CORS allows your server to accept requests from different origins (browsers)
-
-const path = require('path'); 
-// Node.js module to handle file and directory paths
-
-const mongoose = require('mongoose'); 
-// Mongoose is an ODM (Object Data Modeling) library to interact with MongoDB using JS objects
-
-const socketio = require('socket.io'); 
-// Socket.io enables real-time, bidirectional communication between server and clients
-
-const http = require('http'); 
-// Built-in Node.js module to create HTTP servers
-
-const routes = require('./routes'); 
-// Import route definitions for the application
+const express = require('express');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const socketio = require('socket.io');
 
 const app = express();
-
-// Middleware
-app.use(express.json()); // Parse JSON in all incoming requests
-app.use(cors()); // Enable CORS for all routes
-
-// Create HTTP server and attach Socket.io
 const server = http.createServer(app);
+
+const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const PORT = process.env.PORT || 3333;
+
 const io = socketio(server, {
   cors: {
-    origin: 'http://localhost:5173', // Allow frontend requests (or '*' for any origin)
+    origin: CLIENT_URL,
     methods: ['GET', 'POST'],
     credentials: true
   }
 });
 
-const connectedUsers = {}; // Track connected users
+// socket.id de cada usuario conectado, indexado por user_id
+const connectedUsers = {};
 
-// Socket.io connection
 io.on('connection', socket => {
-  console.log('User connected:', socket.id);
-
-  // Get user ID from frontend query
   const { user_id } = socket.handshake.query;
-  if (user_id) {
-    if (!connectedUsers[user_id]) {
-      connectedUsers[user_id] = [];
-    }
-    connectedUsers[user_id].push(socket.id);
-    console.log(`User ${user_id} connected on socket ${socket.id}`);
+
+  if (!user_id) {
+    console.log(`socket ${socket.id} conectou sem user_id`);
+    return;
   }
 
-  // Example: send a welcome message
-  // socket.emit('message', 'Welcome to AirCNC!');
-  
-  // Example: listen to messages from frontend
-  // socket.on('message', data => console.log(data));
+  if (!connectedUsers[user_id]) {
+    connectedUsers[user_id] = [];
+  }
+  connectedUsers[user_id].push(socket.id);
+  console.log(`user ${user_id} conectou no socket ${socket.id}`);
+
+  socket.on('disconnect', () => {
+    const sockets = connectedUsers[user_id] || [];
+    const index = sockets.indexOf(socket.id);
+    if (index !== -1) sockets.splice(index, 1);
+    if (sockets.length === 0) delete connectedUsers[user_id];
+    console.log(`socket ${socket.id} desconectou`);
+  });
 });
 
-// Test route
-app.get('/', (req, res) => res.send('API AirCNC loading...'));
+app.use(express.json());
+app.use(cors({ origin: CLIENT_URL }));
 
-// Middleware to make `io` and `connectedUsers` available in routes
+// deixa io e connectedUsers disponiveis em qualquer rota
 app.use((req, res, next) => {
   req.io = io;
   req.connectedUsers = connectedUsers;
-  next(); // Continue to the next middleware or route
+  next();
 });
 
-// Load routes
-app.use(routes);
+app.get('/', (req, res) => res.json({ name: 'aircnc-backend', status: 'ok' }));
 
-// Serve uploaded files
+app.get('/ping', (req, res) => res.send('pong'));
+
+// arquivos enviados ficam em uploads/ e sao servidos em /files
 app.use('/files', express.static(path.resolve(__dirname, 'uploads')));
 
-// Simple ping route to test server
-app.get('/ping', (req, res) => {
-  console.log('Ping received');
-  res.send('pong');
+// qualquer caminho nao mapeado devolve JSON, nao o HTML padrao do Express
+app.use((req, res) => {
+  res.status(404).json({ error: 'rota nao encontrada' });
 });
 
-// Function to start MongoDB connection
-async function startDatabase() {
-  const { DB_USER, DB_PASS, DB_NAME, DB_CLUSTER1, DB_CLUSTER2 } = process.env;
-  const uri = `my link from mongo db will be here//${DB_USER}:${DB_PASS}${DB_CLUSTER1}/${DB_NAME}?${DB_CLUSTER2}`;
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json({ error: 'erro interno no servidor' });
+});
 
-  try {
-    await mongoose.connect(uri);
-    console.log('Connected to MongoDB Atlas');
-  } catch (error) {
-    console.error('Error connecting to MongoDB:', error);
-    process.exit(1); // Stop the process if DB connection fails
+async function connectDatabase() {
+  const uri = process.env.MONGO_URI;
+
+  if (!uri) {
+    throw new Error('MONGO_URI nao definida: copie .env.example para .env');
   }
+
+  await mongoose.connect(uri);
+  console.log('conectado ao MongoDB');
 }
 
-// Start server after DB connection
-startDatabase().then(() => {
-  const port = process.env.PORT || 3333;
-  server.listen(port, () => {
-    console.log(`Server started on port ${port}`);
-  });
-});
+// so sobe o servidor quando o arquivo e executado direto,
+// assim o app pode ser importado por um teste sem abrir porta nem banco
+if (require.main === module) {
+  connectDatabase()
+    .then(() => {
+      server.listen(PORT, () => console.log(`servidor em http://localhost:${PORT}`));
+    })
+    .catch(error => {
+      console.error('falha ao conectar no MongoDB:', error.message);
+      process.exit(1);
+    });
+}
+
+module.exports = { app, server, io, connectedUsers, connectDatabase };
