@@ -1,11 +1,16 @@
+const mongoose = require('mongoose');
+
 // monta o JSON que sai da api a partir dos documentos do mongoose,
 // assim o contrato das rotas fica num lugar so e nao depende do toJSON do model
 
 const plain = doc => (doc && typeof doc.toObject === 'function' ? doc.toObject() : doc);
 
-const idOf = value => (value && value._id !== undefined ? String(value._id) : String(value));
+// um ObjectId do mongoose tambem tem _id (aponta para ele mesmo),
+// entao a referencia so conta como populada quando nao e um id puro
+const isPopulated = value =>
+  value !== null && typeof value === 'object' && !mongoose.isObjectIdOrHexString(value) && value._id !== undefined;
 
-const isPopulated = value => value !== null && typeof value === 'object' && value._id !== undefined;
+const idOf = value => (isPopulated(value) ? String(value._id) : String(value));
 
 function presentUser(user) {
   const data = plain(user);
