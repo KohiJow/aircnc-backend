@@ -42,8 +42,8 @@ async function main() {
     if (closing) return;
     closing = true;
     logger.info(`${signal} recebido, encerrando`);
+    // io.close() derruba os sockets e fecha o http server que ele envolve
     await realtime.close();
-    await new Promise(resolve => server.close(resolve));
     await database.disconnect();
     process.exit(0);
   }
