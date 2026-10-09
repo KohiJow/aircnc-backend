@@ -16,6 +16,9 @@ function createApp({ config, realtime, database }) {
   app.set('trust proxy', config.trustProxy);
   app.locals.config = config;
 
+  // primeiro de todos, para registrar tambem o que o rate limit e o parser de json barram
+  app.use(requestLogger);
+
   // as imagens de /files sao carregadas pelo front em outra origem,
   // e a politica padrao do helmet (same-origin) bloquearia isso
   app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
@@ -34,7 +37,6 @@ function createApp({ config, realtime, database }) {
   );
 
   app.use(express.json({ limit: config.jsonLimit }));
-  app.use(requestLogger);
 
   app.use((req, res, next) => {
     req.realtime = realtime;

@@ -46,7 +46,6 @@ function translateError(err, { exposeDetails }) {
   return { status: 500, body, expected: false };
 }
 
-// eslint-disable-next-line no-unused-vars
 function errorHandler(err, req, res, next) {
   const config = req.app.locals.config || {};
   const { status, body, expected } = translateError(err, { exposeDetails: !config.isProduction });
@@ -57,7 +56,8 @@ function errorHandler(err, req, res, next) {
     logger.debug(`${req.method} ${req.originalUrl} -> ${status}: ${err.message}`);
   }
 
-  if (res.headersSent) return;
+  // com a resposta ja iniciada so o handler padrao do express consegue fechar a conexao
+  if (res.headersSent) return next(err);
   res.status(status).json(body);
 }
 

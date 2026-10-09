@@ -114,6 +114,22 @@ describe('rotas base', () => {
     proxied.cleanup();
   });
 
+  test('loga toda requisicao, inclusive as barradas antes das rotas', async () => {
+    const { logger } = require('../../src/lib/logger');
+    const info = jest.spyOn(logger, 'info').mockImplementation(() => {});
+    const limited = buildApp({ env: { RATE_LIMIT_MAX: '1', RATE_LIMIT_WINDOW_MS: '60000' } });
+
+    await request(limited.app).post('/sessions').set('content-type', 'application/json').send('{"email":');
+    await request(limited.app).get('/ping');
+
+    expect(info.mock.calls.map(([line]) => line)).toEqual([
+      expect.stringMatching(/^POST \/sessions 400 \d+\.\dms$/),
+      expect.stringMatching(/^GET \/ping 429 \d+\.\dms$/)
+    ]);
+    info.mockRestore();
+    limited.cleanup();
+  });
+
   test('rotas de dominio respondem 503 enquanto o banco nao conectou', async () => {
     const offline = buildApp({ databaseConnected: false });
 
