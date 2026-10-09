@@ -12,6 +12,8 @@ const BookingSchema = new mongoose.Schema(
   { timestamps: true, versionKey: false, bufferCommands: false }
 );
 
-BookingSchema.index({ spot: 1, user: 1, date: 1 });
+// o controller ja checa antes de criar, mas duas requisicoes ao mesmo tempo
+// passariam pela checagem; o indice unico garante no banco e vira 409
+BookingSchema.index({ spot: 1, user: 1, date: 1 }, { unique: true });
 
 module.exports = mongoose.model('Booking', BookingSchema);

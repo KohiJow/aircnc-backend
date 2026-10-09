@@ -28,6 +28,10 @@ describe('models', () => {
     expect(booking.date).toBeInstanceOf(Date);
   });
 
+  test('Booking tem indice unico por spot, usuario e data', () => {
+    expect(Booking.schema.indexes()).toEqual([[{ spot: 1, user: 1, date: 1 }, expect.objectContaining({ unique: true })]]);
+  });
+
   test('schemas nao enfileiram comandos antes da conexao', () => {
     for (const Model of [User, Spot, Booking]) {
       expect(Model.schema.options.bufferCommands).toBe(false);

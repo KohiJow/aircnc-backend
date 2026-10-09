@@ -274,7 +274,9 @@ curl -X POST $API/spots/66f1c0a2b7e9d3a1c4f0e222/bookings \
 ```
 
 Erros: `400` (`spot_id` fora do formato, data faltando, formato errado, dia inexistente,
-data passada, spot proprio), `404` spot nao encontrado, `409` reserva repetida.
+data passada, spot proprio), `404` spot nao encontrado, `409` reserva repetida. A reserva
+tambem tem indice unico por spot, usuario e data no banco, entao dois pedidos iguais ao
+mesmo tempo nao criam duas reservas: o segundo recebe `409`.
 
 Se o dono do spot estiver conectado no socket, recebe o evento `booking_request` com esse
 mesmo JSON.
