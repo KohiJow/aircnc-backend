@@ -30,7 +30,7 @@ src/
   validators/        validacao de entrada de cada rota
   models/            User, Spot, Booking (mongoose)
   middlewares/       require-user, require-database, request-logger, not-found, error-handler
-  lib/               errors, logger, upload, presenters, realtime (socket.io), database
+  lib/               errors, logger, upload, presenters, object-id, realtime (socket.io), database
 tests/               jest + supertest, models mockados, sem banco
 ```
 
@@ -66,7 +66,8 @@ Os testes rodam sem MongoDB: os models sao mockados com `jest.mock`, e o `create
 versoes falsas do socket e da conexao. Cobrem cada rota em sucesso e erro (validacao, 401,
 403, 404, 409, 413, 415, 429, 500 em dev e em producao), os validators, a leitura das
 variaveis de ambiente, o upload (tipo, tamanho e assinatura do arquivo), as salas do
-Socket.IO com um cliente real e a partida do processo com um `MONGO_URI` que nao responde.
+Socket.IO com um cliente real, as rotas de reserva com o Socket.IO de verdade (o evento tem
+que chegar na sala de quem pediu) e a partida do processo com um `MONGO_URI` que nao responde.
 
 ## Variaveis de ambiente
 
