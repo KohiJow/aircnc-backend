@@ -77,7 +77,7 @@ Socket.IO com um cliente real e a partida do processo com um `MONGO_URI` que nao
 | `PORT` | porta do http (`0` escolhe uma livre) | `3333` |
 | `APP_URL` | url publica da api, base do `thumbnail_url` (com `PORT=0`, a porta escolhida) | `http://localhost:PORT` |
 | `CLIENT_URL` | origens liberadas no CORS e no Socket.IO, separadas por virgula, ou `*` | `http://localhost:5173` |
-| `TRUST_PROXY` | `true` atras de proxy reverso, para o rate limit ver o ip real | `false` |
+| `TRUST_PROXY` | atras de proxy reverso: numero de proxies na frente da api (ex.: `1`) ou lista de ips/redes (`loopback`, `10.0.0.0/8`); `true` e recusado porque deixaria qualquer um forjar o ip no rate limit | `false` |
 | `UPLOAD_DIR` | pasta das imagens, relativa a raiz do projeto ou absoluta | `uploads` |
 | `UPLOAD_MAX_MB` | tamanho maximo da imagem | `2` |
 | `UPLOAD_MIME_TYPES` | tipos aceitos (`image/jpeg`, `image/png`, `image/webp`, `image/gif`) | `image/jpeg,image/png,image/webp` |

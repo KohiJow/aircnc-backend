@@ -1,3 +1,4 @@
+const net = require('net');
 const path = require('path');
 
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
@@ -36,15 +37,6 @@ function parseNumber(name, raw, fallback, { min, max }, problems) {
   return value;
 }
 
-function parseBoolean(name, raw, fallback, problems) {
-  if (raw === undefined || raw === '') return fallback;
-  const value = String(raw).trim().toLowerCase();
-  if (value === 'true' || value === '1') return true;
-  if (value === 'false' || value === '0') return false;
-  problems.push(`${name} precisa ser true ou false (recebido: "${raw}")`);
-  return fallback;
-}
-
 function parseList(raw) {
   return String(raw)
     .split(',')
@@ -59,6 +51,36 @@ function parseOneOf(name, raw, fallback, allowed, problems) {
     return fallback;
   }
   return raw;
+}
+
+// nomes que o express aceita no trust proxy, alem de ips e redes em CIDR
+const PROXY_NAMES = ['loopback', 'linklocal', 'uniquelocal'];
+
+function isProxyAddress(item) {
+  if (PROXY_NAMES.includes(item)) return true;
+  const [address, prefix, extra] = item.split('/');
+  if (extra !== undefined || !net.isIP(address)) return false;
+  return prefix === undefined || /^\d{1,3}$/.test(prefix);
+}
+
+// trust proxy = true confia em qualquer X-Forwarded-For e deixa o cliente escolher
+// o proprio ip no rate limit, por isso so entra o numero de proxies ou a lista deles
+function parseTrustProxy(raw, problems) {
+  if (raw === undefined || raw.trim() === '') return false;
+  const value = raw.trim().toLowerCase();
+  if (value === 'false') return false;
+  if (value === 'true') {
+    problems.push('TRUST_PROXY=true confia em qualquer X-Forwarded-For e deixa burlar o rate limit: use o numero de proxies na frente da api (ex.: 1) ou a lista de ips/redes');
+    return false;
+  }
+  if (/^\d+$/.test(value)) return Number(value);
+  const list = parseList(raw);
+  const invalid = list.find(item => !isProxyAddress(item));
+  if (invalid !== undefined) {
+    problems.push(`TRUST_PROXY contem um valor invalido: "${invalid}" (aceitos: false, numero de proxies, ou lista de ips, redes CIDR, loopback, linklocal, uniquelocal)`);
+    return false;
+  }
+  return list;
 }
 
 function isHttpUrl(value) {
@@ -110,7 +132,7 @@ function loadConfig(env = process.env) {
   appUrl = appUrl.replace(/\/+$/, '');
 
   const clientUrls = parseOrigins(env.CLIENT_URL || 'http://localhost:5173', problems);
-  const trustProxy = parseBoolean('TRUST_PROXY', env.TRUST_PROXY, false, problems);
+  const trustProxy = parseTrustProxy(env.TRUST_PROXY, problems);
 
   const uploadDir = path.resolve(ROOT_DIR, env.UPLOAD_DIR || 'uploads');
   const uploadMaxMb = parseNumber('UPLOAD_MAX_MB', env.UPLOAD_MAX_MB, 2, { min: 0.01, max: 100 }, problems);

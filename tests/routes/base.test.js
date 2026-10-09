@@ -105,6 +105,15 @@ describe('rotas base', () => {
     limited.cleanup();
   });
 
+  test('atras de um proxy o rate limit usa o ip que o proxy anotou, nao o que o cliente forjou', async () => {
+    const proxied = buildApp({ env: { TRUST_PROXY: '1', RATE_LIMIT_MAX: '1', RATE_LIMIT_WINDOW_MS: '60000' } });
+    // o ultimo ip e o que o proxy confiavel anotou; o primeiro veio do cliente e nao conta
+    expect((await request(proxied.app).get('/ping').set('X-Forwarded-For', '9.9.9.9, 1.1.1.1')).status).toBe(200);
+    expect((await request(proxied.app).get('/ping').set('X-Forwarded-For', '8.8.8.8, 1.1.1.1')).status).toBe(429);
+    expect((await request(proxied.app).get('/ping').set('X-Forwarded-For', '8.8.8.8, 2.2.2.2')).status).toBe(200);
+    proxied.cleanup();
+  });
+
   test('rotas de dominio respondem 503 enquanto o banco nao conectou', async () => {
     const offline = buildApp({ databaseConnected: false });
 

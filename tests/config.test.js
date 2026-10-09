@@ -35,7 +35,7 @@ describe('loadConfig', () => {
       NODE_ENV: 'production',
       APP_URL: 'https://api.exemplo.com/',
       CLIENT_URL: 'https://app.exemplo.com/, http://localhost:5173',
-      TRUST_PROXY: 'true',
+      TRUST_PROXY: '1',
       UPLOAD_DIR: '/tmp/imagens',
       UPLOAD_MAX_MB: '0.5',
       UPLOAD_MIME_TYPES: 'image/png',
@@ -50,7 +50,7 @@ describe('loadConfig', () => {
     expect(config.appUrl).toBe('https://api.exemplo.com');
     expect(config.filesUrl).toBe('https://api.exemplo.com/files');
     expect(config.clientUrls).toEqual(['https://app.exemplo.com', 'http://localhost:5173']);
-    expect(config.trustProxy).toBe(true);
+    expect(config.trustProxy).toBe(1);
     expect(config.uploadDir).toBe('/tmp/imagens');
     expect(config.uploadMaxBytes).toBe(524288);
     expect(config.uploadMimeTypes).toEqual(['image/png']);
@@ -73,6 +73,16 @@ describe('loadConfig', () => {
     expect(withListeningPort(fixed, 45678)).toBe(fixed);
     const normal = loadConfig(valid);
     expect(withListeningPort(normal, 3333)).toBe(normal);
+  });
+
+  test('TRUST_PROXY aceita false, numero de proxies ou lista, e recusa true', () => {
+    expect(loadConfig(valid).trustProxy).toBe(false);
+    expect(loadConfig({ ...valid, TRUST_PROXY: 'false' }).trustProxy).toBe(false);
+    expect(loadConfig({ ...valid, TRUST_PROXY: '2' }).trustProxy).toBe(2);
+    expect(loadConfig({ ...valid, TRUST_PROXY: 'loopback, 10.0.0.0/8, 2001:db8::1' }).trustProxy).toEqual(['loopback', '10.0.0.0/8', '2001:db8::1']);
+    expect(() => loadConfig({ ...valid, TRUST_PROXY: 'true' })).toThrow(/TRUST_PROXY=true/);
+    expect(() => loadConfig({ ...valid, TRUST_PROXY: '10.0.0.0/8/x' })).toThrow(/valor invalido/);
+    expect(() => loadConfig({ ...valid, TRUST_PROXY: 'proxy.interno' })).toThrow(/valor invalido/);
   });
 
   test('CLIENT_URL=* libera qualquer origem', () => {
