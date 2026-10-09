@@ -14,7 +14,6 @@ const unauthorized = message => new AppError(401, message);
 const forbidden = message => new AppError(403, message);
 const notFound = message => new AppError(404, message);
 const conflict = message => new AppError(409, message);
-const payloadTooLarge = message => new AppError(413, message);
 const unsupportedMediaType = message => new AppError(415, message);
 
 module.exports = {
@@ -24,6 +23,5 @@ module.exports = {
   forbidden,
   notFound,
   conflict,
-  payloadTooLarge,
   unsupportedMediaType
 };

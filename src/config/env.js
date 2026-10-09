@@ -1,13 +1,12 @@
 const net = require('net');
 const path = require('path');
 
+const { SUPPORTED_MIME_TYPES } = require('../lib/upload');
+
 const ROOT_DIR = path.resolve(__dirname, '..', '..');
 
 const NODE_ENVS = ['development', 'production', 'test'];
 const LOG_LEVELS = ['debug', 'info', 'warn', 'error', 'silent'];
-
-// tipos que o verificador de assinatura em lib/upload.js sabe reconhecer
-const SUPPORTED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 class ConfigError extends Error {
   constructor(problems) {

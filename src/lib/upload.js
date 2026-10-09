@@ -5,12 +5,15 @@ const multer = require('multer');
 
 const { unsupportedMediaType } = require('./errors');
 
+// extensao gravada para cada tipo que detectImageType reconhece
 const EXTENSIONS = {
   'image/jpeg': '.jpg',
   'image/png': '.png',
   'image/webp': '.webp',
   'image/gif': '.gif'
 };
+
+const SUPPORTED_MIME_TYPES = Object.keys(EXTENSIONS);
 
 // o mimetype vem do cliente, entao o conteudo e conferido pelos primeiros bytes
 function detectImageType(buffer) {
@@ -60,4 +63,4 @@ async function removeImage(filename, config) {
   }
 }
 
-module.exports = { createUpload, saveImage, removeImage, detectImageType };
+module.exports = { createUpload, saveImage, removeImage, detectImageType, SUPPORTED_MIME_TYPES };

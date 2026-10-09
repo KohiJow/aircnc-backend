@@ -45,7 +45,7 @@ function createDatabase(config) {
 
   const isConnected = () => mongoose.connection.readyState === 1;
 
-  return { connect, connectWithRetry, disconnect, isConnected };
+  return { connectWithRetry, disconnect, isConnected };
 }
 
 module.exports = { createDatabase };
