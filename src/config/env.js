@@ -101,7 +101,8 @@ function loadConfig(env = process.env) {
   const port = parseInteger('PORT', env.PORT, 3333, { min: 0, max: 65535 }, problems);
 
   let appUrl = (env.APP_URL || '').trim();
-  if (!appUrl) {
+  const appUrlFromEnv = appUrl !== '';
+  if (!appUrlFromEnv) {
     appUrl = `http://localhost:${port}`;
   } else if (!isHttpUrl(appUrl)) {
     problems.push(`APP_URL precisa ser uma url http(s) (recebido: "${appUrl}")`);
@@ -137,6 +138,7 @@ function loadConfig(env = process.env) {
     mongoUri,
     port,
     appUrl,
+    appUrlFromEnv,
     filesUrl: `${appUrl}/files`,
     clientUrls,
     trustProxy,
@@ -152,4 +154,12 @@ function loadConfig(env = process.env) {
   };
 }
 
-module.exports = { loadConfig, ConfigError };
+// com PORT=0 a porta so existe depois do listen: se APP_URL nao foi dada,
+// monta appUrl e filesUrl com a porta que o sistema escolheu
+function withListeningPort(config, port) {
+  if (config.appUrlFromEnv || config.port !== 0) return config;
+  const appUrl = `http://localhost:${port}`;
+  return { ...config, appUrl, filesUrl: `${appUrl}/files` };
+}
+
+module.exports = { loadConfig, withListeningPort, ConfigError };

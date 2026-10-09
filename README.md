@@ -75,7 +75,7 @@ Socket.IO com um cliente real e a partida do processo com um `MONGO_URI` que nao
 | `MONGO_URI` | string de conexao do MongoDB (`mongodb://` ou `mongodb+srv://`) | obrigatoria |
 | `NODE_ENV` | `development`, `production` ou `test`; em `production` o 500 nao traz mensagem nem stack | `development` |
 | `PORT` | porta do http (`0` escolhe uma livre) | `3333` |
-| `APP_URL` | url publica da api, base do `thumbnail_url` | `http://localhost:PORT` |
+| `APP_URL` | url publica da api, base do `thumbnail_url` (com `PORT=0`, a porta escolhida) | `http://localhost:PORT` |
 | `CLIENT_URL` | origens liberadas no CORS e no Socket.IO, separadas por virgula, ou `*` | `http://localhost:5173` |
 | `TRUST_PROXY` | `true` atras de proxy reverso, para o rate limit ver o ip real | `false` |
 | `UPLOAD_DIR` | pasta das imagens, relativa a raiz do projeto ou absoluta | `uploads` |

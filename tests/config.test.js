@@ -1,6 +1,6 @@
 const path = require('path');
 
-const { loadConfig, ConfigError } = require('../src/config/env');
+const { loadConfig, withListeningPort, ConfigError } = require('../src/config/env');
 
 const valid = { MONGO_URI: 'mongodb://localhost:27017/aircnc' };
 
@@ -59,6 +59,20 @@ describe('loadConfig', () => {
     expect(config.dbConnectTimeoutMs).toBe(1000);
     expect(config.dbRetryMs).toBe(500);
     expect(config.logLevel).toBe('warn');
+  });
+
+  test('withListeningPort so troca a url quando PORT=0 e APP_URL nao foi dada', () => {
+    const ephemeral = loadConfig({ ...valid, PORT: '0' });
+    expect(ephemeral.appUrl).toBe('http://localhost:0');
+    const listening = withListeningPort(ephemeral, 45678);
+    expect(listening.appUrl).toBe('http://localhost:45678');
+    expect(listening.filesUrl).toBe('http://localhost:45678/files');
+    expect(ephemeral.appUrl).toBe('http://localhost:0');
+
+    const fixed = loadConfig({ ...valid, PORT: '0', APP_URL: 'https://api.exemplo.com' });
+    expect(withListeningPort(fixed, 45678)).toBe(fixed);
+    const normal = loadConfig(valid);
+    expect(withListeningPort(normal, 3333)).toBe(normal);
   });
 
   test('CLIENT_URL=* libera qualquer origem', () => {

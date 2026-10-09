@@ -4,7 +4,7 @@ const fs = require('fs');
 const http = require('http');
 
 const { createApp } = require('./app');
-const { loadConfig } = require('./config/env');
+const { loadConfig, withListeningPort } = require('./config/env');
 const { createDatabase } = require('./lib/database');
 const { logger } = require('./lib/logger');
 const { createRealtime } = require('./lib/realtime');
@@ -12,30 +12,33 @@ const { createRealtime } = require('./lib/realtime');
 const SHUTDOWN_TIMEOUT_MS = 3000;
 
 async function main() {
-  let config;
+  let startupConfig;
   try {
-    config = loadConfig();
+    startupConfig = loadConfig();
   } catch (error) {
     logger.error(error.message);
     process.exit(1);
   }
-  logger.setLevel(config.logLevel);
+  logger.setLevel(startupConfig.logLevel);
 
-  await fs.promises.mkdir(config.uploadDir, { recursive: true });
+  await fs.promises.mkdir(startupConfig.uploadDir, { recursive: true });
 
   const server = http.createServer();
-  const realtime = createRealtime(server, config);
-  const database = createDatabase(config);
-  const app = createApp({ config, realtime, database });
-  server.on('request', app);
+  const realtime = createRealtime(server, startupConfig);
+  const database = createDatabase(startupConfig);
 
   // o http sobe antes do banco: /, /ping, /health e /files respondem sempre,
   // as rotas de dominio respondem 503 ate o mongo conectar
   await new Promise((resolve, reject) => {
     server.once('error', reject);
-    server.listen(config.port, resolve);
+    server.listen(startupConfig.port, resolve);
   });
-  logger.info(`servidor em http://localhost:${server.address().port} (${config.nodeEnv})`);
+
+  // o app e montado depois do listen para a url dos arquivos levar a porta real
+  const config = withListeningPort(startupConfig, server.address().port);
+  const app = createApp({ config, realtime, database });
+  server.on('request', app);
+  logger.info(`servidor em http://localhost:${server.address().port} (${config.nodeEnv}), arquivos em ${config.filesUrl}`);
 
   database.connectWithRetry();
 
