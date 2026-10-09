@@ -131,7 +131,8 @@ describe.each([
     expect(booking.approved).toBe(approved);
     expect(booking.save).toHaveBeenCalled();
     expect(Booking.findById).toHaveBeenCalledWith(ids.booking);
-    expect(ctx.realtime.emitToUser).toHaveBeenCalledWith(userDoc, 'booking_response', expectedBody(approved));
+    // a sala do socket e pelo id em texto, nao pelo documento populado
+    expect(ctx.realtime.emitToUser).toHaveBeenCalledWith(ids.user, 'booking_response', expectedBody(approved));
   });
 
   test('devolve 400 com booking_id fora do formato', async () => {

@@ -1,11 +1,9 @@
 const Booking = require('../models/Booking');
 const Spot = require('../models/Spot');
 const { badRequest, notFound, forbidden, conflict } = require('../lib/errors');
-const { isObjectId } = require('../lib/object-id');
+const { isObjectId, idOf } = require('../lib/object-id');
 const { presentBooking } = require('../lib/presenters');
 const { validateBooking } = require('../validators/booking');
-
-const sameId = (a, b) => String(a && a._id !== undefined ? a._id : a) === String(b);
 
 async function store(req, res) {
   const { filesUrl } = req.app.locals.config;
@@ -16,7 +14,7 @@ async function store(req, res) {
 
   const spot = await Spot.findById(spotId);
   if (!spot) throw notFound('spot nao encontrado');
-  if (sameId(spot.user, req.user._id)) throw badRequest('nao e possivel reservar o proprio spot');
+  if (idOf(spot.user) === idOf(req.user)) throw badRequest('nao e possivel reservar o proprio spot');
 
   const existing = await Booking.findOne({ user: req.user._id, spot: spot._id, date });
   if (existing) throw conflict('ja existe uma reserva sua para esse spot nessa data');
@@ -26,7 +24,7 @@ async function store(req, res) {
 
   const payload = presentBooking(booking, filesUrl);
   // avisa o dono do spot se ele estiver conectado no socket
-  req.realtime.emitToUser(spot.user, 'booking_request', payload);
+  req.realtime.emitToUser(idOf(spot.user), 'booking_request', payload);
 
   res.status(201).json(payload);
 }
@@ -39,7 +37,7 @@ async function respond(req, res, approved) {
 
   const booking = await Booking.findById(bookingId).populate(['spot', 'user']);
   if (!booking) throw notFound('reserva nao encontrada');
-  if (!booking.spot || !sameId(booking.spot.user, req.user._id)) {
+  if (!booking.spot || idOf(booking.spot.user) !== idOf(req.user)) {
     throw forbidden('so o dono do spot pode responder a reserva');
   }
   if (booking.approved !== null && booking.approved !== undefined) throw conflict('reserva ja respondida');
@@ -48,7 +46,8 @@ async function respond(req, res, approved) {
   await booking.save();
 
   const payload = presentBooking(booking, filesUrl);
-  req.realtime.emitToUser(booking.user, 'booking_response', payload);
+  // booking.user esta populado aqui, e a sala do socket e pelo id
+  req.realtime.emitToUser(idOf(booking.user), 'booking_response', payload);
 
   res.json(payload);
 }
